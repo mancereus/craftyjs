@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "ES6"
+    },
+    "exclude": [
+        "bower_components",
+        "node_modules",
+        ".git"
+    ]
+}
