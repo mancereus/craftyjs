@@ -132,7 +132,8 @@ nextLevel();
 
 
 function nextLevel() {
-    setHitCounter(5);
+    if (hitCounter < 5)
+        setHitCounter(5);
     level = level + 1;
     var lm = levelMap['l' + level];
     levelWidth = lm.width;
