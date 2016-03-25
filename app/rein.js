@@ -1,7 +1,7 @@
 
 var screenWidth = 800;
 var screenHeight = 400;
-var hitCounter = 0;
+var hitCounter = 5;
 var player1;
 var floor;
 var target;
@@ -46,24 +46,46 @@ Crafty.defineScene("HomeScreen", function() {
         .textColor("#FFFFFF");
 });
 
+Crafty.defineScene("Finish", function() {
+    Crafty.background("black url('img/dungeon.jpg') 100% 100%");
+    Crafty.e("2D, DOM, Text, Mouse")
+        .attr({ w: 300, h: 20, x: 100, y: 200 })
+        .text("Du hast bewiesen dass du der tapferste Ritter im ganzen Land bist.")
+        .css({ "text-align": "center" })
+        .textFont({ size: '14px', weight: 'bold' })
+        .textColor("#FFFFFF")
+        .bind('Click', function(MouseEvent) {
+            level =1;
+            Crafty.enterScene("Level1");
+        });
+
+    Crafty.e("2D, DOM, Text")
+        .attr({ w: 400, h: 40, x: 50, y: 50 })
+        .text("SIEG")
+        .textFont({ size: '130px', weight: 'bold' })
+        .css({ "text-align": "center" })
+        .textColor("#FFFFFF");
+});
+
 
 
 Crafty.defineScene("Level1", function() {
-    Crafty.background("black");
+    Crafty.background("black url('img/dungeon.jpg') 100% 100%");
     Crafty.sprite(32, "img/dungeon.png", {
-        target: [19, 0]
+        target: [19, 0],
+        potion: [0,2]
     });
     Crafty.sprite(32, "img/characters.png", {
         hero1: [5, 3],
         blob1: [4, 7],
-        rain: [13,6]
+        rain: [15,0]
     });
     floor = Crafty.e('Floor, 2D, Canvas, Solid, Color, Collision')
         .attr({ x: 0, y: 380, w: levelWidth, h: 10 })
         .color('white');
 
     target = Crafty.e('Ziel, target, 2D, Canvas, Solid, Color, Collision')
-        .attr({ x: levelWidth, y: 280, w: 100, h: 50 })
+        .attr({ x: levelWidth-140, y: 330, w: 100, h: 50 })
         .checkHits('Player')
         .bind("HitOn", function() {
             Crafty.enterScene("Level1");
@@ -110,7 +132,7 @@ nextLevel();
 
 
 function nextLevel() {
-    setHitCounter(0);
+    setHitCounter(5);
     level = level + 1;
     var lm = levelMap['l' + level];
     levelWidth = lm.width;
@@ -131,8 +153,8 @@ function setHitCounter(count) {
     hitCounter = count;
     points.text(hitCounter);
     points.x = screenWidth - 100 - Crafty.viewport.x
-    if (hitCounter >= 5) {
-        setHitCounter(0);
+    if (hitCounter <= 0) {
+        setHitCounter(5);
         player1.x = 0;
         Crafty.viewport.x = 0;
 
@@ -143,6 +165,7 @@ function drop() {
     var randomx = Math.floor((Math.random() * screenWidth) + 50 - Crafty.viewport.x);
     if (randomx > levelWidth - 100)
         return;
+    if (Math.random() > 0.05) {    
     Crafty.e('Drop, rain, 2D, Canvas, Color, Solid, Gravity, Collision')
         .attr({ x: randomx, y: 0, w: 10, h: 15 })
         .gravity()
@@ -150,7 +173,7 @@ function drop() {
         .checkHits('Player')
         .bind("HitOn", function() {
             this.destroy();
-            setHitCounter(hitCounter + 1);
+            setHitCounter(hitCounter - 1);
 
 
         })
@@ -158,6 +181,24 @@ function drop() {
             if (this.y > screenHeight)
                 this.destroy();
         });
+    } else {
+    Crafty.e('Drop, potion, 2D, Canvas, Color, Solid, Gravity, Collision')
+        .attr({ x: randomx, y: 0, w: 20, h: 20 })
+        .gravity()
+        .gravityConst(.05)
+        .checkHits('Player')
+        .bind("HitOn", function() {
+            this.destroy();
+            setHitCounter(hitCounter + 2);
+
+
+        })
+        .bind("EnterFrame", function() {
+            if (this.y > screenHeight)
+                this.destroy();
+        });
+        
+    }
 }
 
 Crafty.bind("EnterFrame", function() {
