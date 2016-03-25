@@ -3,9 +3,26 @@ var screenWidth = 800;
 var screenHeight = 400;
 var hitCounter = 0;
 var player1;
+var floor;
+var target;
 var points;
-var levelWidth = 2000;
-var level = 1;
+var levelWidth = 500;
+var level = 0;
+var lvl;
+var rainCount = 15;
+var levelMap = {
+    l1: { rain: 15, obj: 0, width: 1000 },
+    l2: { rain: 11, obj: 1, width: 1500 },
+    l3: { rain: 11, obj: 4, width: 2000 },
+    l4: { rain: 9, obj: 4, width: 2000 },
+    l5: { rain: 8, obj: 5, width: 2000 },
+    l6: { rain: 6, obj: 6, width: 2000 },
+    l7: { rain: 4, obj: 7, width: 2000 },
+    l8: { rain: 3, obj: 8, width: 2500 },
+
+
+}
+
 
 Crafty.init(screenWidth, screenHeight, document.getElementById('game'));
 
@@ -33,38 +50,47 @@ Crafty.defineScene("HomeScreen", function() {
 
 Crafty.defineScene("Level1", function() {
     Crafty.background("black");
-    Crafty.e('Floor, 2D, Canvas, Solid, Color, Collision')
+    Crafty.sprite(32, "img/dungeon.png", {
+        target: [19, 0]
+    });
+    Crafty.sprite(32, "img/characters.png", {
+        hero1: [5, 3],
+        blob1: [4, 7],
+        rain: [13,6]
+    });
+    floor = Crafty.e('Floor, 2D, Canvas, Solid, Color, Collision')
         .attr({ x: 0, y: 380, w: levelWidth, h: 10 })
         .color('white');
-    Crafty.e('Floor, 2D, Canvas, Solid, Color, Collision')
-        .attr({ x: 1, y: 1, w: 1, h: 1000 })
-        .color('white');
 
-    Crafty.e('Ziel, 2D, Canvas, Solid, Color, Collision')
+    target = Crafty.e('Ziel, target, 2D, Canvas, Solid, Color, Collision')
         .attr({ x: levelWidth, y: 280, w: 100, h: 50 })
-        .color('blue')
         .checkHits('Player')
         .bind("HitOn", function() {
             Crafty.enterScene("Level1");
             Crafty.viewport.x = 0;
-            setHitCounter(0);
+            nextLevel();
 
         });
 
-    player1 = Crafty.e('Player, 2D, Canvas, Color, Solid, Twoway, Gravity, Collision')
-        .attr({ x: 20, y: 0, w: 30, h: 30 })
-        .color('white')
+    player1 = Crafty.e('Player, hero1, 2D, Canvas, Color, Solid, Twoway, Gravity, Collision')
+        .attr({ x: 20, y: 0, w: 50, h: 50 })
         .twoway(4)
         .gravity('Floor')
         .gravityConst(.2)
-        .checkHits('Floor')
+        .checkHits('Obstacle')
+        .bind("HitOn", function() {
+            player1.x = 0;
+            Crafty.viewport.x = 0;
+        })
         .bind("Moved", function() {
+            if (this.x < 0)
+                this.x = 0;
             if (this.x >= (screenWidth / 2)) {
                 Crafty.viewport.x = (this.x - (screenWidth / 2)) * -1;
             }
 
         });
-    Crafty.e("2D, DOM, Text")
+    lvl = Crafty.e("2D, DOM, Text")
         .attr({ x: 100, y: 10 })
         .text("level " + level)
         .textFont({ size: '63px', weight: 'bold' })
@@ -78,15 +104,36 @@ Crafty.defineScene("Level1", function() {
         .textColor("#FFFFFF");
 });
 
+Crafty.load(["img/dungeon.png", "img/characters.png"]);
 Crafty.enterScene("Level1");
+nextLevel();
 
+
+function nextLevel() {
+    setHitCounter(0);
+    level = level + 1;
+    var lm = levelMap['l' + level];
+    levelWidth = lm.width;
+    floor.w = lm.width;
+    target.x = lm.width;
+    lvl.text("Level " + level)
+    for (var i = 0; i < lm.obj; i++) {
+        var randomx = Math.floor((Math.random() * levelWidth - 150) + 50);
+        Crafty.e('Obstacle, blob1, 2D, Canvas, Color, Solid, Twoway, Gravity, Collision')
+            .attr({ x: randomx, y: 0, w: 50, h: 40 })
+            .gravity('Floor')
+            .gravityConst(.2)
+            .checkHits('Floor')
+            ;
+    }
+}
 function setHitCounter(count) {
     hitCounter = count;
     points.text(hitCounter);
     points.x = screenWidth - 100 - Crafty.viewport.x
     if (hitCounter >= 5) {
-        player1.x = 0;
         setHitCounter(0);
+        player1.x = 0;
         Crafty.viewport.x = 0;
 
     }
@@ -96,9 +143,8 @@ function drop() {
     var randomx = Math.floor((Math.random() * screenWidth) + 50 - Crafty.viewport.x);
     if (randomx > levelWidth - 100)
         return;
-    Crafty.e('Drop, 2D, Canvas, Color, Solid, Gravity, Collision')
+    Crafty.e('Drop, rain, 2D, Canvas, Color, Solid, Gravity, Collision')
         .attr({ x: randomx, y: 0, w: 10, h: 15 })
-        .color('#FFFFFF')
         .gravity()
         .gravityConst(.5)
         .checkHits('Player')
@@ -115,6 +161,7 @@ function drop() {
 }
 
 Crafty.bind("EnterFrame", function() {
-    if (Crafty.frame() % 6 == 0)
+    var lm = levelMap['l' + level];
+    if (Crafty.frame() % lm.rain == 0)
         drop();
 });
