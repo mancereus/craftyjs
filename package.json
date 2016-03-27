@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "crafty": "^0.1.1"
+    "crafty": "^0.1.1",
+    "vulcanize": "^1.14.8"
   }
 }

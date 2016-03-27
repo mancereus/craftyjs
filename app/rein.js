@@ -12,13 +12,16 @@ var lvl;
 var rainCount = 15;
 var levelMap = {
     l1: { rain: 15, obj: 0, width: 1000 },
-    l2: { rain: 11, obj: 1, width: 1500 },
-    l3: { rain: 11, obj: 4, width: 2000 },
-    l4: { rain: 9, obj: 4, width: 2000 },
-    l5: { rain: 8, obj: 5, width: 2000 },
-    l6: { rain: 6, obj: 6, width: 2000 },
-    l7: { rain: 4, obj: 7, width: 2000 },
-    l8: { rain: 3, obj: 8, width: 2500 },
+    l2: { rain: 14, obj: 1, width: 1200 },
+    l3: { rain: 13, obj: 2, width: 1400 },
+    l4: { rain:12, obj: 3, width: 1600 },
+    l5: { rain:11, obj: 4, width: 1800 },
+    l6: { rain:10, obj: 5, width: 2000 },
+    l7: { rain: 9, obj: 6, width: 2200 },
+    l8: { rain: 8, obj: 7, width: 2400 },
+    l9: { rain: 7, obj: 8, width: 2600 },
+    l10: { rain: 6, obj: 9, width: 2800 },
+    l11: { rain: 5, obj: 10, width: 3000 },
 
 
 }
