@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "craftyjs": "^0.7.1",
     "vulcanize": "^1.14.8"
   }
 }
